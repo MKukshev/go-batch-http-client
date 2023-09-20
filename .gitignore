@@ -1,0 +1,5 @@
+/.DS_Store
+/.vscode
+/result/*.txt
+/log/*.log
+/bin

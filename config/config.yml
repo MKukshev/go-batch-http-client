@@ -1,0 +1,14 @@
+# Server configurations
+server:
+  url: "http://192.168.101.235:8080/svetets/orchestrator/speech/payment/offline"
+  req: "POST"
+  limiter: 10
+
+# Data configurations
+files:
+  path: "result/"
+
+logger:
+  path: "log/result.log"  
+
+
