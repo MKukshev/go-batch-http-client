@@ -3,6 +3,7 @@ package app
 import (
 	"bufio"
 	"bytes"
+
 	"context"
 	"encoding/json"
 	"fmt"
@@ -20,6 +21,36 @@ func CheckError(err error) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func sendRequest(client *http.Client, cfg *Config, jsonStr string, jsonBytes []byte) {
+	// Создаем HTTP POST запрос
+	req, err := http.NewRequest(cfg.Server.Req, cfg.Server.Url, bytes.NewBuffer(jsonBytes))
+	if err != nil {
+		log.Println("Ошибка создания HTTP запроса:", err)
+		return
+	}
+
+	// Устанавливаем заголовки, если необходимо
+	req.Header.Set("Content-Type", "application/json")
+
+	// Отправляем запрос
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Println("Ошибка отправки HTTP запроса:", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	// Читаем ответ сервера и выводим его
+	var responseBody bytes.Buffer
+	_, err = io.Copy(&responseBody, resp.Body)
+	if err != nil {
+		log.Println("Ошибка чтения ответа сервера:", err)
+		return
+	}
+	log.Println(fmt.Sprintf("json: %s resp: %s", jsonStr, resp.Status))
+
 }
 
 func Run(cfg Config) {
@@ -72,32 +103,7 @@ func Run(cfg Config) {
 				continue
 			}
 
-			// Создаем HTTP POST запрос
-			req, err := http.NewRequest(cfg.Server.Req, cfg.Server.Url, bytes.NewBuffer(jsonBytes))
-			if err != nil {
-				log.Println("Ошибка создания HTTP запроса:", err)
-				continue
-			}
-
-			// Устанавливаем заголовки, если необходимо
-			req.Header.Set("Content-Type", "application/json")
-
-			// Отправляем запрос
-			resp, err := client.Do(req)
-			if err != nil {
-				log.Println("Ошибка отправки HTTP запроса:", err)
-				continue
-			}
-			defer resp.Body.Close()
-
-			// Читаем ответ сервера и выводим его
-			var responseBody bytes.Buffer
-			_, err = io.Copy(&responseBody, resp.Body)
-			if err != nil {
-				log.Println("Ошибка чтения ответа сервера:", err)
-				continue
-			}
-			log.Println(fmt.Sprintf("json: %s resp: %s", jsonStr, resp.Status))
+			go sendRequest(client, &cfg, jsonStr, jsonBytes)
 		}
 
 		if err := scanner.Err(); err != nil {
