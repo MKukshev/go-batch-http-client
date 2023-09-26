@@ -23,7 +23,7 @@ func CheckError(err error) {
 	}
 }
 
-func sendRequest(client *http.Client, cfg *Config, jsonStr *string, jsonStr *[]byte) {
+func sendRequest(client *http.Client, cfg *Config, jsonStr *string, jsonBytes *[]byte) {
 	// Создаем HTTP POST запрос
 	req, err := http.NewRequest(cfg.Server.Req, cfg.Server.Url, bytes.NewBuffer(*jsonBytes))
 	if err != nil {
@@ -49,7 +49,7 @@ func sendRequest(client *http.Client, cfg *Config, jsonStr *string, jsonStr *[]b
 		log.Println("Ошибка чтения ответа сервера:", err)
 		return
 	}
-	log.Println(fmt.Sprintf("json: %s resp: %s", jsonStr, resp.Status))
+	log.Println(fmt.Sprintf("json: %s resp: %s", *jsonStr, resp.Status))
 
 }
 
@@ -103,7 +103,7 @@ func Run(cfg Config) {
 				continue
 			}
 
-			go sendRequest(client, &cfg, &jsonStr, jsonBytes)
+			go sendRequest(client, &cfg, &jsonStr, &jsonBytes)
 		}
 
 		if err := scanner.Err(); err != nil {
