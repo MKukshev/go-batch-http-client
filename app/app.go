@@ -23,9 +23,9 @@ func CheckError(err error) {
 	}
 }
 
-func sendRequest(client *http.Client, cfg *Config, jsonStr string, jsonBytes []byte) {
+func sendRequest(client *http.Client, cfg *Config, jsonStr *string, jsonStr *[]byte) {
 	// Создаем HTTP POST запрос
-	req, err := http.NewRequest(cfg.Server.Req, cfg.Server.Url, bytes.NewBuffer(jsonBytes))
+	req, err := http.NewRequest(cfg.Server.Req, cfg.Server.Url, bytes.NewBuffer(*jsonBytes))
 	if err != nil {
 		log.Println("Ошибка создания HTTP запроса:", err)
 		return
@@ -103,7 +103,7 @@ func Run(cfg Config) {
 				continue
 			}
 
-			go sendRequest(client, &cfg, jsonStr, jsonBytes)
+			go sendRequest(client, &cfg, &jsonStr, jsonBytes)
 		}
 
 		if err := scanner.Err(); err != nil {
